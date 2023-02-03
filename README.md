@@ -1,7 +1,7 @@
 # Word Search UI
 
 This project is a simple UI for my [word-search](https://github.com/serd223/word-search) project.
-
+![](gifs/example-usage.gif)
 
 ## Usage
 
