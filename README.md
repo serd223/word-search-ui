@@ -19,5 +19,5 @@ git clone https://github.com/serd223/word-search-ui
 cd word-search-ui
 cargo run
 ```
-To hide the console window on Windows, run with `cargo run --release`.
+To hide the console window on Windows, build with `cargo build --release`.
 
