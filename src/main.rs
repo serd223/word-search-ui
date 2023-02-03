@@ -11,13 +11,14 @@ words_alpha.txt: https://github.com/dwyl/english-words/
 use std::fs;
 
 use eframe::{
-    egui::{self, RichText, TextEdit},
+    egui::{self, Layout, RichText, TextEdit},
     epaint::Color32,
 };
 use word_search::Library;
 
-// TODO dont hardcode the source file, let users change their source file during runtime
 const SOURCE_FILE: &str = "./res/words_alpha.txt";
+
+const FONST_SIZE_MULTIPLIER: f32 = 1.45;
 
 fn main() {
     let options = eframe::NativeOptions {
@@ -48,6 +49,9 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
+                for (_, font_id) in ui.style_mut().text_styles.iter_mut() {
+                    font_id.size *= FONST_SIZE_MULTIPLIER;
+                }
                 ui.label(
                     RichText::new("Which word do you want to search?")
                         .color(Color32::WHITE)
@@ -57,7 +61,6 @@ impl eframe::App for App {
                 let _ = text_edit.show(ui);
                 // ui.text_edit_singleline(&mut self.input);
             });
-
             if self.previous_input != self.input {
                 // println!("{} -> {}", self.previous_input, self.input);
                 self.previous_input = self.input.clone();
@@ -71,10 +74,40 @@ impl eframe::App for App {
 
             // println!("{:?}", search_results);
             ui.vertical_centered(|ui| {
-                for (s, _) in self.search_results.iter() {
-                    ui.label(RichText::new(s));
+                for (_, font_id) in ui.style_mut().text_styles.iter_mut() {
+                    font_id.size *= 1.75;
                 }
-            })
+                for (s, _) in self.search_results.iter() {
+                    ui.label(RichText::new(s).background_color(Color32::from_rgb(32, 32, 32)));
+                }
+            });
+            ui.with_layout(Layout::bottom_up(egui::Align::Center), |ui| {
+                if ui.button("Select a different source file!").clicked() {
+                    if let Some(path) = rfd::FileDialog::new()
+                        .set_directory("./")
+                        .add_filter("Text", &["txt"])
+                        .pick_file()
+                    {
+                        match fs::read_to_string(path) {
+                            Ok(s) => {
+                                self.word_lib.set_source(s);
+                                self.search_results = self
+                                    .word_lib
+                                    .search(&self.input)
+                                    .into_iter()
+                                    .map(|(s, i)| (s.to_string(), i))
+                                    .collect();
+                            }
+                            Err(_) => (),
+                        }
+                    }
+                }
+                ui.label(
+                    RichText::new("Can't find what you are looking for?")
+                        .color(Color32::LIGHT_GRAY)
+                        .heading(),
+                );
+            });
         });
     }
 }
