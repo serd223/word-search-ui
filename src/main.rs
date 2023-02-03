@@ -11,7 +11,7 @@ words_alpha.txt: https://github.com/dwyl/english-words/
 use std::fs;
 
 use eframe::{
-    egui::{self, RichText},
+    egui::{self, RichText, TextEdit},
     epaint::Color32,
 };
 use word_search::Library;
@@ -40,6 +40,8 @@ fn main() {
 struct App {
     word_lib: Library,
     input: String,
+    previous_input: String,
+    search_results: Vec<(String, i32)>,
 }
 
 impl eframe::App for App {
@@ -51,13 +53,25 @@ impl eframe::App for App {
                         .color(Color32::WHITE)
                         .heading(),
                 );
-                ui.text_edit_singleline(&mut self.input);
+                let text_edit = TextEdit::singleline(&mut self.input).hint_text("Search here...");
+                let _ = text_edit.show(ui);
+                // ui.text_edit_singleline(&mut self.input);
             });
 
-            let search_results = self.word_lib.search(&self.input);
+            if self.previous_input != self.input {
+                // println!("{} -> {}", self.previous_input, self.input);
+                self.previous_input = self.input.clone();
+                self.search_results = self
+                    .word_lib
+                    .search(&self.input)
+                    .into_iter()
+                    .map(|(s, i)| (s.to_string(), i))
+                    .collect();
+            }
+
             // println!("{:?}", search_results);
             ui.vertical_centered(|ui| {
-                for (s, _) in search_results {
+                for (s, _) in self.search_results.iter() {
                     ui.label(RichText::new(s));
                 }
             })
