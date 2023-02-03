@@ -1,6 +1,6 @@
 # Word Search UI
 
-This project is a simple ui for my [word-search](https://github.com/serd223/word-search) project.
+This project is a simple UI for my [word-search](https://github.com/serd223/word-search) project.
 
 
 ## Usage
