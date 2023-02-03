@@ -38,18 +38,28 @@ fn different_char_count(a: &str, b: &str) -> i32 {
     res
 }
 
+#[derive(Default)]
 pub struct Library {
     source: String,
     options: SearchOptions,
 }
 
 impl Library {
+    pub fn new(options: SearchOptions) -> Self {
+        Self {
+            options: options,
+            ..Default::default()
+        }
+    }
+
     pub fn set_source(&mut self, new_source: String) {
         self.source.clear();
         self.source = new_source;
     }
 
     pub fn search(&self, input: &str) -> Vec<(&str, i32)> {
+        // Sorry but I really don't want to refactor the search logic.
+
         let input_len = input.chars().count();
         if input_len < 1 {
             return (0..self.options.suggestion_count)
